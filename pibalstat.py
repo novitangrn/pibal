@@ -1,4 +1,4 @@
-pip install windrose
+pip install git+https://github.com/python-windrose/windrose
 
 import pandas as pd
 import matplotlib.pyplot as plt
