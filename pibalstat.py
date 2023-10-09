@@ -1,8 +1,10 @@
-import streamlit as st
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
 import numpy as np
+import streamlit as st
+import matplotlib.pyplot as plt
+import matplotlib
+import seaborn as sns
+matplotlib.use('Agg')
 from windrose import WindroseAxes
 
 def create_windrose_from_excel(file_path):
