@@ -1,5 +1,4 @@
-pip install git+https://github.com/python-windrose/windrose
-
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from windrose import WindroseAxes
@@ -30,10 +29,18 @@ def create_windrose_from_excel(file_path):
         speeds = df_dropna['ff'].values
 
         # Membuat plot windrose
-        ax = WindroseAxes.from_ax()
+        fig, ax = plt.subplots()
+        ax = WindroseAxes.from_ax(fig=fig)
         ax.bar(directions, speeds, normed=True, opening=0.8, edgecolor='white')
         ax.set_legend()
 
         # Menampilkan plot
         plt.title(f"Windrose - {sheet_name}")
-        plt.show()
+
+        # Menampilkan plot menggunakan Streamlit
+        st.pyplot(fig)
+
+# Memanggil fungsi untuk membuat windrose dari file Excel
+file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
+if file_path is not None:
+    create_windrose_from_excel(file_path)
