@@ -1,3 +1,6 @@
+git clone https://github.com/python-windrose/windrose
+python setup.py install
+
 from windrose import WindroseAxes
 import streamlit as st
 import pandas as pd
