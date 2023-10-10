@@ -7,5 +7,4 @@ streamlit==0.81.0
 scikit_learn==0.24.2
 openpyxl
 psutil
-plotly-orca==1.2.1
 kaleido
