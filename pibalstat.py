@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import openpyxl
 import plotly.io as pio
+import io
 
 def convert_to_wind_direction(degrees):
     directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -66,8 +66,13 @@ if file_path is not None:
             # Mengonversi grafik menjadi gambar
             image = fig.to_image(format="png")
             
-            # Menyimpan gambar ke file
-            with open("grafik.png", "wb") as f:
-                f.write(image)
+            # Menyimpan gambar ke objek BytesIO
+            img_bytes = io.BytesIO(image)
             
-            st.success("Gambar berhasil disimpan sebagai 'grafik.png'")
+            # Menampilkan tombol unduh
+            st.download_button(
+                label="Unduh Gambar",
+                data=img_bytes,
+                file_name="grafik.png",
+                mime="image/png"
+            )
