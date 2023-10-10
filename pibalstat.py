@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
 import plotly.io as pio
 import io
 
@@ -61,18 +62,13 @@ if file_path is not None:
                            color_discrete_sequence=px.colors.sequential.Plasma_r)
         st.plotly_chart(fig)
 
-        # Menambahkan tombol untuk menyimpan gambar
-        if st.button("Simpan Gambar"):
-            # Mengonversi grafik menjadi gambar
-            image = fig.to_image(format="png")
-            
-            # Menyimpan gambar ke objek BytesIO
-            img_bytes = io.BytesIO(image)
-            
-            # Menampilkan tombol unduh
-            st.download_button(
-                label="Unduh Gambar",
-                data=img_bytes,
-                file_name="grafik.png",
-                mime="image/png"
-            )
+    # Add a download button to rename the downloaded file
+    if st.button('Download Chart'):
+        # Convert the figure to an image
+        image = fig.to_image(format='png')
+    
+        # Prompt the user to enter a new file name
+        new_file_name = st.text_input('Enter a new file name', 'chart.png')
+    
+        # Download the image with the new file name
+        st.download_button(label='Download', data=image, file_name=new_file_name, mime='image/png')
