@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import openpyxl
+import plotly.io as pio
 
 def convert_to_wind_direction(degrees):
     directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -59,3 +60,17 @@ if file_path is not None:
                            color="ff",
                            color_discrete_sequence=px.colors.sequential.Plasma_r)
         st.plotly_chart(fig)
+
+        # Menambahkan opsi untuk menyimpan gambar dengan nama kustom
+        if st.button("Simpan Gambar"):
+            # Mengambil nama file dari input pengguna
+            nama_file = st.text_input("Masukkan nama file", "grafik.png")
+            
+            # Mengonversi grafik menjadi gambar
+            image = fig.to_image(format="png")
+            
+            # Menyimpan gambar ke file dengan nama kustom
+            with open(nama_file, "wb") as f:
+                f.write(image)
+            
+            st.success(f"Gambar berhasil disimpan sebagai '{nama_file}'")
