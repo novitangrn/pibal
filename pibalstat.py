@@ -61,16 +61,13 @@ if file_path is not None:
                            color_discrete_sequence=px.colors.sequential.Plasma_r)
         st.plotly_chart(fig)
 
-        # Menambahkan opsi untuk menyimpan gambar dengan nama kustom
+        # Menambahkan tombol untuk menyimpan gambar
         if st.button("Simpan Gambar"):
-            # Mengambil nama file dari input pengguna
-            nama_file = st.text_input("Masukkan nama file", "grafik.png")
-            
             # Mengonversi grafik menjadi gambar
             image = fig.to_image(format="png")
             
-            # Menyimpan gambar ke file dengan nama kustom
-            with open(nama_file, "wb") as f:
+            # Menyimpan gambar ke file
+            with open("grafik.png", "wb") as f:
                 f.write(image)
             
-            st.success(f"Gambar berhasil disimpan sebagai '{nama_file}'")
+            st.success("Gambar berhasil disimpan sebagai 'grafik.png'")
