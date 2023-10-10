@@ -42,10 +42,11 @@ def calculate_wind_frequency(file_path):
         frequency_tables[sheet_name] = frequency_table
     
     return frequency_tables
+# Memanggil fungsi untuk membuat windrose dari file Excel
 
-# Contoh penggunaan
-file_path = 'Pibal 06UTC.xlsx'
-tables = calculate_wind_frequency(file_path)
+file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
+if file_path is not None:
+    tables = create_windrose_from_excel(file_path)
 
 # Menggunakan Streamlit untuk menampilkan grafik polar
 st.title("Grafik Polar Frekuensi Mata Angin")
