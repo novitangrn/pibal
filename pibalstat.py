@@ -1,15 +1,13 @@
-pip install -r requirements.txt
-
+import streamlit as st
 import pandas as pd
 import numpy as np
-import streamlit as st
-import matplotlib.pyplot as plt
-import matplotlib
-import seaborn as sns
-matplotlib.use('Agg')
-from windrose import WindroseAxes
 
-def create_windrose_from_excel(file_path):
+def convert_to_wind_direction(degrees):
+    directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
+    index = np.round((degrees % 360) / 22.5).astype(int)
+    return np.array(directions)[index]
+
+def calculate_wind_frequency(file_path):
     # Membaca file Excel dengan multiple sheets
     xls = pd.ExcelFile(file_path)
 
@@ -21,32 +19,41 @@ def create_windrose_from_excel(file_path):
     for sheet_name in xls.sheet_names:
         # Membaca data di range kolom G11:I165
         df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=155)
-
-        # Menghapus nilai NaN dan menyimpan DataFrame baru
-        df_dropna = df.dropna()
-
+        
+        # Menghapus nilai NaN dan non-finite
+        df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
+        
+        # Mengubah nilai ddd menjadi mata angin
+        df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
+        
         data_frames[sheet_name] = df
-        data_frames_dropna[sheet_name] = df_dropna
+        data_frames_dropna[sheet_name] = df_cleaned
 
-    # Loop melalui setiap sheet
-    for sheet_name, df_dropna in data_frames_dropna.items():
-        # Mendapatkan data angin dari DataFrame yang telah dihapus nilai NaN
-        directions = df_dropna['ddd'].values
-        speeds = df_dropna['ff'].values
+    # Menghitung frekuensi mata angin berdasarkan kecepatan angin
+    frequency_tables = {}
+    for sheet_name, df_cleaned in data_frames_dropna.items():
+        # Menghitung range kecepatan angin secara dinamis
+        min_speed = df_cleaned['ff'].min()
+        max_speed = df_cleaned['ff'].max()
+        speed_bins = np.linspace(min_speed, max_speed, num=6)
+        speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
+        
+        frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
+        frequency_tables[sheet_name] = frequency_table
+    
+    return frequency_tables
 
-        # Membuat plot windrose
-        fig, ax = plt.subplots()
-        ax = WindroseAxes.from_ax(fig=fig)
-        ax.bar(directions, speeds, normed=True, opening=0.8, edgecolor='white')
-        ax.set_legend()
+# Contoh penggunaan
+file_path = 'Pibal 06UTC.xlsx'
+tables = calculate_wind_frequency(file_path)
 
-        # Menampilkan plot
-        plt.title(f"Windrose - {sheet_name}")
+# Menggunakan Streamlit untuk menampilkan grafik polar
+st.title("Grafik Polar Frekuensi Mata Angin")
+bulan = st.selectbox("Pilih Bulan", list(tables.keys()))
 
-        # Menampilkan plot menggunakan Streamlit
-        st.pyplot(fig)
-
-# Memanggil fungsi untuk membuat windrose dari file Excel
-file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
-if file_path is not None:
-    create_windrose_from_excel(file_path)
+if bulan:
+    table = tables[bulan]
+    fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                       color="ff",
+                       color_discrete_sequence=px.colors.sequential.Plasma_r)
+    st.plotly_chart(fig)
