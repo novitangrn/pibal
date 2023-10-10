@@ -48,7 +48,7 @@ def calculate_wind_frequency(file_path):
     return frequency_tables
 
 # Menggunakan Streamlit untuk menampilkan grafik polar
-st.title("Grafik Polar Frekuensi Mata Angin")
+st.title("Windrose Data Pibal")
 file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
 
 if file_path is not None:
@@ -64,11 +64,6 @@ if file_path is not None:
 
     # Add a download button to rename the downloaded file
     if st.button('Download Chart'):
-        # Convert the figure to an image
         image = fig.to_image(format='png')
-    
-        # Prompt the user to enter a new file name
-        new_file_name = st.text_input('Enter a new file name', 'chart.png')
-    
-        # Download the image with the new file name
+        new_file_name = st.text_input('Masukkan nama file', 'chart.png')
         st.download_button(label='Download', data=image, file_name=new_file_name, mime='image/png')
