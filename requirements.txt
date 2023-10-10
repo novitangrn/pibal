@@ -4,7 +4,7 @@ matplotlib==3.4.1
 plotly==4.14.3
 numpy==1.20.2
 scikit_learn==0.24.2
-streamlit
+streamlit==1.25.0
 openpyxl
 psutil
 kaleido
