@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 def convert_to_wind_direction(degrees):
     directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -42,19 +43,18 @@ def calculate_wind_frequency(file_path):
         frequency_tables[sheet_name] = frequency_table
     
     return frequency_tables
-# Memanggil fungsi untuk membuat windrose dari file Excel
-
-file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
-if file_path is not None:
-    tables = calculate_wind_frequency(file_path)
 
 # Menggunakan Streamlit untuk menampilkan grafik polar
 st.title("Grafik Polar Frekuensi Mata Angin")
-bulan = st.selectbox("Pilih Bulan", list(tables.keys()))
+file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
 
-if bulan:
-    table = tables[bulan]
-    fig = px.bar_polar(table, r="frequency", theta="wind_direction",
-                       color="ff",
-                       color_discrete_sequence=px.colors.sequential.Plasma_r)
-    st.plotly_chart(fig)
+if file_path is not None:
+    tables = calculate_wind_frequency(file_path)
+    bulan = st.selectbox("Pilih Bulan", list(tables.keys()))
+
+    if bulan:
+        table = tables[bulan]
+        fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                           color="ff",
+                           color_discrete_sequence=px.colors.sequential.Plasma_r)
+        st.plotly_chart(fig)
