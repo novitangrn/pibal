@@ -46,7 +46,7 @@ def calculate_wind_frequency(file_path):
 
 file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
 if file_path is not None:
-    tables = create_windrose_from_excel(file_path)
+    tables = calculate_wind_frequency(file_path)
 
 # Menggunakan Streamlit untuk menampilkan grafik polar
 st.title("Grafik Polar Frekuensi Mata Angin")
