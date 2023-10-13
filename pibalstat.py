@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-#import plotly.graph_objects as go
-import plotly.io as pio
-import io
 
 def convert_to_wind_direction(degrees):
     directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -44,11 +41,11 @@ def calculate_wind_frequency(file_path):
         
         frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
         frequency_tables[sheet_name] = frequency_table
-    
+
     return frequency_tables
 
 # Menggunakan Streamlit untuk menampilkan grafik polar
-st.title("Windrose Data Pibal")
+st.title("Grafik Polar Frekuensi Mata Angin")
 file_path = st.file_uploader("Upload file Excel", type=["xlsx"])
 
 if file_path is not None:
@@ -61,9 +58,3 @@ if file_path is not None:
                            color="ff",
                            color_discrete_sequence=px.colors.sequential.Plasma_r)
         st.plotly_chart(fig)
-
-    # Add a download button to rename the downloaded file
-    if st.button('Download Chart'):
-        image = fig.to_image(format='png')
-        new_file_name = st.text_input('Masukkan nama file', 'chart.png')
-        st.download_button(label='Download', data=image, file_name=new_file_name, mime='image/png')
