@@ -24,7 +24,11 @@ def calculate_wind_frequency(file_path, selected_sheet):
         # Mengubah nilai ddd menjadi mata angin
         df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
 
-        return df_cleaned
+        # Menghitung frekuensi mata angin
+        frequency_table = df_cleaned['wind_direction'].value_counts().reset_index()
+        frequency_table.columns = ['wind_direction', 'frequency']
+
+        return frequency_table
     except Exception as e:
         st.error(f"Terjadi kesalahan: {str(e)}")
 
@@ -51,8 +55,9 @@ def main():
             # Menampilkan grafik frekuensi mata angin
             st.title("Grafik Polar Frekuensi Mata Angin")
             fig = px.bar_polar(frequency_table, r="frequency", theta="wind_direction",
-                               color="ff",
-                               color_discrete_sequence=px.colors.sequential.Plasma_r)
+                               color="frequency",
+                               color_continuous_scale="Plasma",
+                               template="plotly_dark")
             st.plotly_chart(fig)
 
 if __name__ == "__main__":
