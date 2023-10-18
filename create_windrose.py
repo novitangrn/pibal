@@ -54,22 +54,3 @@ def calculate_wind_frequency(file_path):
         frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
 
         frequency_tables[sheet_name] = frequency_table
-
-    return frequency_tables
-
-if __name__ == "__main__":
-    # Mendapatkan input file dari user
-    uploaded_file = st.file_uploader("Upload file Excel Anda:", type=['xlsx'])
-
-    # Jika user telah meng-upload file, maka hitung frekuensi arah angin
-    if uploaded_file is not None:
-        file_path = uploaded_file.name
-        tables = calculate_wind_frequency(file_path)
-
-        # Menampilkan grafik bar polar
-        for sheet_name, table in tables.items():
-            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
-                               color="ff", color_discrete_sequence=px.colors.sequential.Plasma_r)
-            fig.update_layout(
-                polar_angularaxis_direction='clockwise',
-                
