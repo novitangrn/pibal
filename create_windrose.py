@@ -1,7 +1,7 @@
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import streamlit as st
 
 def convert_to_wind_direction(degrees):
     directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
@@ -13,58 +13,76 @@ def sort_wind_directions(directions):
     order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
     return sorted(directions, key=lambda direction: order.index(direction))
 
-def calculate_wind_frequency(file_path, sheet_name):
-    # Membaca file Excel dengan multiple sheets
-    xls = pd.ExcelFile(file_path)
+def calculate_wind_frequency(file_path):
+    try:
+        # Membaca file Excel dengan multiple sheets
+        xls = pd.ExcelFile(file_path)
 
-    # Membaca data di range kolom G11:I165
-    df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=155)
-    
-    # Menghapus nilai NaN dan non-finite
-    df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
-    
-    # Mengubah nilai ddd menjadi mata angin
-    df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
-    
-    # Menghitung frekuensi mata angin berdasarkan kecepatan angin
-    # Menghitung range kecepatan angin secara dinamis
-    min_speed = df_cleaned['ff'].min()
-    max_speed = df_cleaned['ff'].max()
-    speed_bins = np.linspace(min_speed, max_speed, num=6)
-    speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
+        # Membuat dictionary untuk menyimpan DataFrame setiap sheet
+        data_frames = {}
 
-    # Menghitung frekuensi mata angin
-    frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
+        # Loop melalui setiap sheet
+        for sheet_name in xls.sheet_names:
+            # Membaca data di range kolom G11:I165
+            df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=155)
+            
+            # Menghapus nilai NaN dan non-finite
+            df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
+            
+            # Mengubah nilai ddd menjadi mata angin
+            df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
+            
+            data_frames[sheet_name] = df_cleaned
 
-    # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
-    directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
-    for direction in directions:
-        if direction not in frequency_table['wind_direction'].tolist():
-            frequency_table = frequency_table.append({'wind_direction': direction, 'ff': speed_labels[0], 'frequency': 0}, ignore_index=True)
+        # Menghitung frekuensi mata angin berdasarkan kecepatan angin
+        frequency_tables = {}
+        for sheet_name, df_cleaned in data_frames.items():
+            # Menghitung range kecepatan angin secara dinamis
+            min_speed = df_cleaned['ff'].min()
+            max_speed = df_cleaned['ff'].max()
+            speed_bins = np.linspace(min_speed, max_speed, num=6)
+            speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
 
-    # Mengurutkan bar berdasarkan arah mata angin
-    #frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
-    frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
+            # Menghitung frekuensi mata angin
+            frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
 
-    return frequency_table
+            # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
+            order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+            for direction in order:
+                if direction not in frequency_table['wind_direction'].tolist():
+                    frequency_table = frequency_table.append({'wind_direction': direction, 'ff': speed_labels[0], 'frequency': 0}, ignore_index=True)
 
-def plot_wind_frequency(file_path, sheet_name):
-    table = calculate_wind_frequency(file_path, sheet_name)
-        
-    fig = px.bar_polar(table, r="frequency", theta="wind_direction",
-                       color="ff",
-                       color_discrete_sequence=px.colors.sequential.Plasma_r)
-    fig.update_layout(
-        polar_angularaxis_direction='clockwise',
-        polar_angularaxis_rotation=0
-    )
-    st.plotly_chart(fig)
+            # Mengurutkan bar berdasarkan arah mata angin
+            frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
+
+            frequency_tables[sheet_name] = frequency_table
+
+        return frequency_tables
+    except Exception as e:
+        st.error(f"Terjadi kesalahan: {str(e)}")
+
+def main():
+    st.title("Wind Frequency Dashboard")
+
+    # Upload file Excel
+    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+
+    if uploaded_file is not None:
+        # Menghitung frekuensi angin
+        frequency_tables = calculate_wind_frequency(uploaded_file)
+
+        if frequency_tables:
+            # Menampilkan grafik untuk setiap sheet dalam file Excel
+            for sheet_name, table in frequency_tables.items():
+                st.subheader(f"Sheet: {sheet_name}")
+                fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                                   color="ff",
+                                   color_discrete_sequence=px.colors.sequential.Plasma_r)
+                fig.update_layout(
+                    polar_angularaxis_direction='clockwise',
+                    polar_angularaxis_rotation=0
+                )
+                st.plotly_chart(fig)
 
 if __name__ == "__main__":
-    file_path = "850 mb 00UTC.xlsx"
-    xls = pd.ExcelFile(file_path)
-    sheet_names = xls.sheet_names
-    
-    sheet_name = st.selectbox('Sheet', sheet_names)
-    
-    plot_wind_frequency(file_path, sheet_name)
+    main()
