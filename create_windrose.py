@@ -58,19 +58,18 @@ def calculate_wind_frequency(file_path):
     return frequency_tables
 
 if __name__ == "__main__":
-    # Membuat sidebar untuk memilih sheet
-    sheet_name = st.sidebar.selectbox('Pilih sheet', xls.sheet_names)
+    # Mendapatkan input file dari user
+    uploaded_file = st.file_uploader("Upload file Excel Anda:", type=['xlsx'])
 
-    # Menghitung frekuensi arah angin
-    tables = calculate_wind_frequency("850 mb 00UTC.xlsx")
-    table = tables[sheet_name]
+    # Jika user telah meng-upload file, maka hitung frekuensi arah angin
+    if uploaded_file is not None:
+        file_path = uploaded_file.name
+        tables = calculate_wind_frequency(file_path)
 
-    # Menampilkan grafik bar polar
-    fig = px.bar_polar(table, r="frequency", theta="wind_direction",
-                       color="ff",
-                       color_discrete_sequence=px.colors.sequential.Plasma_r)
-    fig.update_layout(
-        polar_angularaxis_direction='clockwise',
-        polar_angularaxis_rotation=0
-    )
-    st.plotly_chart(fig)
+        # Menampilkan grafik bar polar
+        for sheet_name, table in tables.items():
+            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                               color="ff", color_discrete_sequence=px.colors.sequential.Plasma_r)
+            fig.update_layout(
+                polar_angularaxis_direction='clockwise',
+                
