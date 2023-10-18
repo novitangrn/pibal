@@ -70,19 +70,20 @@ def main():
     if uploaded_file is not None:
         # Menghitung frekuensi angin
         frequency_tables = calculate_wind_frequency(uploaded_file)
+        bulan = st.selectbox("Pilih Bulan", list(frequency_tables.keys()))
 
-        if frequency_tables:
-            # Menampilkan grafik untuk setiap sheet dalam file Excel
-            for sheet_name, table in frequency_tables.items():
-                st.subheader(f"Sheet: {sheet_name}")
-                fig = px.bar_polar(table, r="frequency", theta="wind_direction",
-                                   color="ff",
-                                   color_discrete_sequence=px.colors.sequential.Plasma_r)
-                fig.update_layout(
-                    polar_angularaxis_direction='clockwise',
-                    polar_angularaxis_rotation=0
-                )
-                st.plotly_chart(fig)
+        if bulan:
+            # Menampilkan grafik untuk setiap sheet dalam file Excel sesuai bulan yang dipilih
+            table = frequency_tables[bulan]
+            st.subheader(f"Sheet: {sheet_name}")
+            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                               color="ff",
+                               color_discrete_sequence=px.colors.sequential.Plasma_r)
+            fig.update_layout(
+                polar_angularaxis_direction='clockwise',
+                polar_angularaxis_rotation=0
+            )
+            st.plotly_chart(fig)
 
 if __name__ == "__main__":
     main()
