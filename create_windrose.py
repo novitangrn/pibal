@@ -41,7 +41,7 @@ def calculate_wind_frequency(file_path):
             min_speed = df_cleaned['ff'].min()
             max_speed = df_cleaned['ff'].max()
             speed_bins = np.linspace(min_speed, max_speed, num=6)
-            speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)
+            speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
 
             # Menghitung frekuensi mata angin
             frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
