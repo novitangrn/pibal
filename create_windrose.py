@@ -71,18 +71,20 @@ def main():
     # Upload file Excel
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
-    # Tambahkan dropdown untuk memilih bulan
-    selected_month = st.selectbox("Pilih Bulan", list(range(1, 13))
-
     if uploaded_file is not None:
         # Menghitung frekuensi angin
         frequency_tables = calculate_wind_frequency(uploaded_file, selected_month)
 
         if frequency_tables:
+            # Menampilkan dropdown untuk memilih sheet
+            selected_sheet = st.selectbox("Pilih Sheet", list(frequency_tables.keys()))
+
+            # Tambahkan dropdown untuk memilih bulan
+            selected_month = st.selectbox("Pilih Bulan", list(range(1, 13)))
+
             # Menampilkan grafik untuk setiap sheet dalam file Excel
             st.title("Grafik Polar Frekuensi Mata Angin")
-            bulan = st.selectbox("Pilih Bulan", list(frequency_tables.keys()))
-            table = frequency_tables[bulan]
+            table = frequency_tables[selected_sheet]
             fig = px.bar_polar(table, r="frequency", theta="wind_direction",
                                color="ff",
                                color_discrete_sequence=px.colors.sequential.Plasma_r)
