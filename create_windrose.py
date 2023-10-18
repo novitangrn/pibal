@@ -11,7 +11,7 @@ def convert_to_wind_direction(degrees):
 def sort_wind_directions(directions):
     """Mengurutkan arah mata angin dari utara ke selatan, timur ke barat."""
     order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-    return sorted(directions, key=lambda direction: order.index(direction))
+    return sorted(directions, key=lambda direction: order.index(direction)
 
 def calculate_wind_frequency(file_path):
     # Membaca file Excel dengan multiple sheets
@@ -54,3 +54,29 @@ def calculate_wind_frequency(file_path):
         frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
 
         frequency_tables[sheet_name] = frequency_table
+
+
+def main():
+    st.title("Wind Frequency Dashboard")
+
+    # Upload file Excel
+    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+
+    if uploaded_file is not None:
+        # Menghitung frekuensi angin
+        frequency_tables = calculate_wind_frequency(uploaded_file)
+
+        # Menampilkan grafik untuk setiap sheet dalam file Excel
+        for sheet_name, table in frequency_tables.items():
+            st.subheader(f"Sheet: {sheet_name}")
+            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+                               color="ff",
+                               color_discrete_sequence=px.colors.sequential.Plasma_r)
+            fig.update_layout(
+                polar_angularaxis_direction='clockwise',
+                polar_angularaxis_rotation=0
+            )
+            st.plotly_chart(fig)
+
+if __name__ == "__main__":
+    main()
