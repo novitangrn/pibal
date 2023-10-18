@@ -13,7 +13,7 @@ def sort_wind_directions(directions):
     order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
     return sorted(directions, key=lambda direction: order.index(direction))
 
-def calculate_wind_frequency(file_path):
+def calculate_wind_frequency(file_path, selected_month):
     try:
         # Membaca file Excel dengan multiple sheets
         xls = pd.ExcelFile(file_path)
@@ -31,6 +31,10 @@ def calculate_wind_frequency(file_path):
             
             # Mengubah nilai ddd menjadi mata angin
             df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
+            
+            # Filter data berdasarkan bulan yang dipilih
+            df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
+            df_cleaned = df_cleaned[df_cleaned['date'].dt.month == selected_month]
             
             data_frames[sheet_name] = df_cleaned
 
@@ -67,9 +71,12 @@ def main():
     # Upload file Excel
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
+    # Tambahkan dropdown untuk memilih bulan
+    selected_month = st.selectbox("Pilih Bulan", list(range(1, 13)))
+
     if uploaded_file is not None:
         # Menghitung frekuensi angin
-        frequency_tables = calculate_wind_frequency(uploaded_file)
+        frequency_tables = calculate_wind_frequency(uploaded_file, selected_month)
 
         if frequency_tables:
             # Menampilkan grafik untuk setiap sheet dalam file Excel
