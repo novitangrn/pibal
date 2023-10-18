@@ -16,8 +16,10 @@ def sort_wind_directions(directions):
 def calculate_wind_frequency(file_path):
     # Membaca file Excel dengan multiple sheets
     xls = pd.ExcelFile(file_path)
+
     # Membuat dictionary untuk menyimpan DataFrame setiap sheet
     data_frames = {}
+
     # Loop melalui setiap sheet
     for sheet_name in xls.sheet_names:
         # Membaca data di range kolom G11:I165
@@ -44,7 +46,8 @@ def calculate_wind_frequency(file_path):
         frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
 
         # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
-        for direction in directions:
+        order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+        for direction in order:
             if direction not in frequency_table['wind_direction'].tolist():
                 frequency_table = frequency_table.append({'wind_direction': direction, 'ff': speed_labels[0], 'frequency': 0}, ignore_index=True)
 
@@ -52,7 +55,6 @@ def calculate_wind_frequency(file_path):
         frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
 
         frequency_tables[sheet_name] = frequency_table
-
 
 def main():
     st.title("Wind Frequency Dashboard")
