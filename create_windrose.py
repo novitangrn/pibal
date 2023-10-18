@@ -13,55 +13,18 @@ def sort_wind_directions(directions):
     order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
     return sorted(directions, key=lambda direction: order.index(direction))
 
-def calculate_wind_frequency(file_path, selected_month):
+def calculate_wind_frequency(file_path, selected_sheet):
     try:
-        # Membaca file Excel dengan multiple sheets
-        xls = pd.ExcelFile(file_path)
+        # Membaca data dari sheet yang dipilih
+        df = pd.read_excel(file_path, sheet_name=selected_sheet, usecols="G:H", skiprows=9, nrows=155)
 
-        # Membuat dictionary untuk menyimpan DataFrame setiap sheet
-        data_frames = {}
+        # Menghapus nilai NaN dan non-finite
+        df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
 
-        # Loop melalui setiap sheet
-        for sheet_name in xls.sheet_names:
-            # Membaca data di range kolom G11:I165
-            df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=155)
-            
-            # Menghapus nilai NaN dan non-finite
-            df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
-            
-            # Mengubah nilai ddd menjadi mata angin
-            df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
-            
-            # Filter data berdasarkan bulan yang dipilih
-            df_cleaned['date'] = pd.to_datetime(df_cleaned['date'])
-            df_cleaned = df_cleaned[df_cleaned['date'].dt.month == selected_month]
-            
-            data_frames[sheet_name] = df_cleaned
+        # Mengubah nilai ddd menjadi mata angin
+        df_cleaned['wind_direction'] = convert_to_wind_direction(df_cleaned['ddd'])
 
-        # Menghitung frekuensi mata angin berdasarkan kecepatan angin
-        frequency_tables = {}
-        for sheet_name, df_cleaned in data_frames.items():
-            # Menghitung range kecepatan angin secara dinamis
-            min_speed = df_cleaned['ff'].min()
-            max_speed = df_cleaned['ff'].max()
-            speed_bins = np.linspace(min_speed, max_speed, num=6)
-            speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
-
-            # Menghitung frekuensi mata angin
-            frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
-
-            # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
-            order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-            for direction in order:
-                if direction not in frequency_table['wind_direction'].tolist():
-                    frequency_table = frequency_table.append({'wind_direction': direction, 'ff': speed_labels[0], 'frequency': 0}, ignore_index=True)
-
-            # Mengurutkan bar berdasarkan arah mata angin
-            frequency_table['wind_direction'] = sort_wind_directions(frequency_table['wind_direction'])
-
-            frequency_tables[sheet_name] = frequency_table
-
-        return frequency_tables
+        return df_cleaned
     except Exception as e:
         st.error(f"Terjadi kesalahan: {str(e)}")
 
@@ -72,20 +35,22 @@ def main():
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
     if uploaded_file is not None:
-        # Tambahkan dropdown untuk memilih bulan
-        selected_month = st.selectbox("Pilih Bulan", list(range(1, 13)))
+        # Membaca file Excel dengan multiple sheets
+        xls = pd.ExcelFile(uploaded_file)
+
+        # Mendapatkan nama-nama sheet
+        sheet_names = xls.sheet_names
+
+        # Menampilkan dropdown untuk memilih sheet
+        selected_sheet = st.selectbox("Pilih Sheet", sheet_names)
 
         # Menghitung frekuensi angin
-        frequency_tables = calculate_wind_frequency(uploaded_file, selected_month)
+        frequency_table = calculate_wind_frequency(uploaded_file, selected_sheet)
 
-        if frequency_tables:
-            # Menampilkan dropdown untuk memilihsheet
-            selected_sheet = st.selectbox("Pilih Sheet", list(frequency_tables.keys()))
-
-            # Menampilkan grafik untuk setiap sheet dalam file Excel
+        if frequency_table is not None:
+            # Menampilkan grafik frekuensi mata angin
             st.title("Grafik Polar Frekuensi Mata Angin")
-            table = frequency_tables[selected_sheet]
-            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+            fig = px.bar_polar(frequency_table, r="frequency", theta="wind_direction",
                                color="ff",
                                color_discrete_sequence=px.colors.sequential.Plasma_r)
             st.plotly_chart(fig)
