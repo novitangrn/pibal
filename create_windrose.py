@@ -11,7 +11,7 @@ def convert_to_wind_direction(degrees):
 def sort_wind_directions(directions):
     """Mengurutkan arah mata angin dari utara ke selatan, timur ke barat."""
     order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-    return sorted(directions, key=lambda direction: order.index(direction)
+    return sorted(directions, key=lambda direction: order.index(direction))
 
 def calculate_wind_frequency(file_path):
     try:
