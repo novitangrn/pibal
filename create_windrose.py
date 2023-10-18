@@ -16,10 +16,8 @@ def sort_wind_directions(directions):
 def calculate_wind_frequency(file_path):
     # Membaca file Excel dengan multiple sheets
     xls = pd.ExcelFile(file_path)
-
     # Membuat dictionary untuk menyimpan DataFrame setiap sheet
     data_frames = {}
-
     # Loop melalui setiap sheet
     for sheet_name in xls.sheet_names:
         # Membaca data di range kolom G11:I165
