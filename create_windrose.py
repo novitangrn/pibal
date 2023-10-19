@@ -38,14 +38,10 @@ def calculate_wind_frequency(file_path):
         frequency_tables = {}
         for sheet_name, df_cleaned in data_frames.items():
             # Menghitung range kecepatan angin secara dinamis
-            min_speed = df_cleaned['ff'].min()
-            max_speed = df_cleaned['ff'].max()
-            speed_bins = np.linspace(min_speed, max_speed, num=6)
-            speed_labels = [f'{speed_bins[i]:.1f}-{speed_bins[i+1]:.1f}' for i in range(len(speed_bins)-1)]
-
-            # Menghitung frekuensi mata angin
+            speed_bins = [0, 5, 10, 15, 20, 25, np.inf]
+            speed_labels = ['0-5 knot', '6-10 knot', '11-15 knot', '16-20 knot', '20-25 knot', '>25 knot']
             frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
-
+     
             # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
             order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
             for direction in order:
@@ -60,6 +56,12 @@ def calculate_wind_frequency(file_path):
         return frequency_tables
     except Exception as e:
         st.error(f"Terjadi kesalahan: {str(e)}")
+
+
+def create_pivot_table(data_frame, bulan):
+    pivot_table = data_frame[bulan].pivot(index='ff', columns='wind_direction', values='frequency')
+    pivot_table_filled = pivot_table.fillna(0).astype(int)
+    return pivot_table_filled
 
 def main():
     st.title("Wind Frequency Dashboard")
@@ -84,6 +86,11 @@ def main():
                 polar_angularaxis_rotation=0
             )
             st.plotly_chart(fig)
+
+            # Menampilkan Pivot Table
+            pivot_table = create_pivot_table(table, bulan)
+            st.subheader(f"Pivot Table Bulan: {bulan}")
+            st.dataframe(pivot_table)
 
 if __name__ == "__main__":
     main()
