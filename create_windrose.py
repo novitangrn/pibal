@@ -78,14 +78,14 @@ def main():
             # Menampilkan grafik untuk setiap sheet dalam file Excel sesuai bulan yang dipilih
             table = frequency_tables[bulan]
             st.subheader(f"Windrose Bulan: {bulan}")
-            fig = px.bar_polar(table, r="frequency", theta="wind_direction",
+            fig = px.bar_polar(sorted_table, r="frequency", theta="wind_direction",
                                color="ff",
-                               color_discrete_sequence=px.colors.sequential.Plasma_r)
-            fig.update_layout(
-                polar_angularaxis_direction='clockwise',
-                polar_angularaxis_rotation=0
-            )
-            st.plotly_chart(fig)
+                               color_discrete_sequence=px.colors.sequential.Rainbow_r,
+                               start_angle=0,
+                               direction="clockwise"
+                              )
+            fig.update_layout(polar_angularaxis_rotation=90)
+            fig.show()
 
             # Menampilkan Pivot Table
             pivot_table = create_pivot_table(table, bulan)
