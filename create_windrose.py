@@ -85,7 +85,7 @@ def main():
                                direction="clockwise"
                               )
             fig.update_layout(polar_angularaxis_rotation=90)
-            fig.show()
+            st.plotly_chart(fig)
 
             # Menampilkan Pivot Table
             pivot_table = create_pivot_table(frequency_tables, bulan)
