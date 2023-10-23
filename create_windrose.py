@@ -88,7 +88,7 @@ def main():
             fig.show()
 
             # Menampilkan Pivot Table
-            pivot_table = create_pivot_table(table, bulan)
+            pivot_table = create_pivot_table(frequency_tables[bulan], bulan)
             st.subheader(f"Pivot Table Bulan: {bulan}")
             st.dataframe(pivot_table)
 
