@@ -94,11 +94,11 @@ def main():
             st.subheader(f"Tabel Frekuensi Angin Bulan: {bulan}")
             st.dataframe(pivot_table)
             
-            # Menambahkan fitur unduh untuk tabel pivot dalam bentuk file Excel
-            excel_file = pd.ExcelWriter("pivot_table.xlsx", engine="xlsxwriter")
-            pivot_table.to_excel(excel_file, index=True)
-            excel_file.save()
-            st.markdown(get_excel_download_link("pivot_table.xlsx", "Unduh Tabel Pivot (Excel)"), unsafe_allow_html=True)
+            # Menyimpan tabel pivot ke dalam file Excel
+            pivot_table.to_excel("pivot_table.xlsx", index=True)
+            
+            # Menampilkan tombol unduh untuk file Excel
+            st.download_button("Unduh Tabel Pivot (Excel)", "pivot_table.xlsx")
             
             # Menampilkan statistik deskriptif
             st.subheader("Statistik Deskriptif")
