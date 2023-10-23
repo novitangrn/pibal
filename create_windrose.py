@@ -90,21 +90,21 @@ def main():
             st.plotly_chart(fig)
 
             # Menampilkan Pivot Table
-            pivot_table = create_pivot_table(frequency_tables, bulan)
-            st.subheader(f"Tabel Frekuensi Angin Bulan: {bulan}")
-            st.dataframe(pivot_table)
+            #pivot_table = create_pivot_table(frequency_tables, bulan)
+            #st.subheader(f"Tabel Frekuensi Angin Bulan: {bulan}")
+            #st.dataframe(pivot_table)
             
             # Menyimpan tabel pivot ke dalam file Excel
-            pivot_table.to_excel("pivot_table.xlsx", index=True)
+            #pivot_table.to_excel("pivot_table.xlsx", index=True)
             
             # Menampilkan tombol unduh untuk file Excel
-            st.download_button("Unduh Tabel Pivot (Excel)", "pivot_table.xlsx")
+            #st.download_button("Unduh Tabel Pivot (Excel)", "pivot_table.xlsx")
             
             # Menampilkan statistik deskriptif
-            st.subheader("Statistik Deskriptif")
-            st.write("Rata-rata:", pivot_table.mean().to_frame().T)
-            st.write("Minimum:", pivot_table.min().to_frame().T)
-            st.write("Maksimum:", pivot_table.max().to_frame().T)
+            #st.subheader("Statistik Deskriptif")
+            #st.write("Rata-rata:", pivot_table.mean().to_frame().T)
+            #st.write("Minimum:", pivot_table.min().to_frame().T)
+            #st.write("Maksimum:", pivot_table.max().to_frame().T)
 
 if __name__ == "__main__":
     main()
