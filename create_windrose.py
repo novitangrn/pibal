@@ -89,7 +89,7 @@ def main():
 
             # Menampilkan Pivot Table
             pivot_table = create_pivot_table(frequency_tables, bulan)
-            st.subheader(f"Pivot Table Bulan: {bulan}")
+            st.subheader(f"Tabel Frekuensi Angin Bulan: {bulan}")
             st.dataframe(pivot_table)
 
 if __name__ == "__main__":
