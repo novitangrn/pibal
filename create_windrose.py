@@ -93,16 +93,15 @@ def main():
             st.subheader(f"Tabel Frekuensi Angin Bulan: {bulan}")
             st.dataframe(pivot_table)
             
-            # Menambahkan fitur unduh untuk tabel pivot
-            csv = pivot_table.to_csv(index=True)
-            b64 = base64.b64encode(csv.encode()).decode()  # Mengenkripsi data CSV
-            href = f'<a href="data:file/csv;base64,{b64}" download="pivot_table.csv">Unduh Tabel Pivot</a>'
-            st.markdown(href, unsafe_allow_html=True)
+            # Menambahkan fitur unduh untuk tabel pivot dalam bentuk file Excel
+            excel_file = pd.ExcelWriter("pivot_table.xlsx", engine="xlsxwriter")
+            pivot_table.to_excel(excel_file, index=True)
+            excel_file.save()
+            st.markdown(get_excel_download_link("pivot_table.xlsx", "Unduh Tabel Pivot (Excel)"), unsafe_allow_html=True)
             
             # Menampilkan statistik deskriptif
             st.subheader("Statistik Deskriptif")
             st.write("Rata-rata:", pivot_table.mean().to_frame().T)
-            st.write("Modus:", pivot_table.mode().iloc[0])
             st.write("Minimum:", pivot_table.min().to_frame().T)
             st.write("Maksimum:", pivot_table.max().to_frame().T)
 
