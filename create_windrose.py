@@ -26,7 +26,7 @@ def calculate_wind_frequency(file_path):
         # Loop melalui setiap sheet
         for sheet_name in xls.sheet_names:
             # Membaca data di range kolom G11:I165
-            df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=155)
+            df = pd.read_excel(file_path, sheet_name=sheet_name, usecols="G:H", skiprows=9, nrows=200000)
             
             # Menghapus nilai NaN dan non-finite
             df_cleaned = df.dropna().replace([np.inf, -np.inf], np.nan)
