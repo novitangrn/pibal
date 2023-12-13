@@ -53,7 +53,8 @@ def main_dynamic_windrose():
 
 def main_upload_windrose():
     st.subheader("Upload Windrose")
-    file_path = st.file_uploader("Upload Excel File", type=["xlsx"])
+    file_key = "upload_file_key"
+    file_path = st.file_uploader("Upload Excel File", type=["xlsx"], key=file_key)
 
     if file_path is not None:
         sheet_names = pd.ExcelFile(file_path).sheet_names
