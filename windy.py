@@ -48,9 +48,32 @@ def main():
 
 def main_dynamic_windrose():
     st.subheader("Dynamic Windrose Generator")
+    file_path = st.file_uploader("Upload Excel File", type=["xlsx"])
+    if file_path is not None:
+        sheet_names = pd.ExcelFile(file_path).sheet_names
+        sheet_name = st.selectbox("Select Sheet", sheet_names)
 
-    # Your code for dynamic windrose here
+        col_range = st.text_input("Column Range (e.g., A:D)", value="A:D")
 
+        if st.button("Calculate"):
+            # Calculate wind frequency
+            frequency_tables = calculate_wind_frequency(file_path, col_range)
+            if sheet_name in frequency_tables:
+                table = frequency_tables[sheet_name]
+                fig = px.bar_polar(table, r="percentage", theta="wind_direction",
+                                   color="ff",
+                                   color_discrete_sequence=px.colors.sequential.Rainbow_r,
+                                   start_angle=0,
+                                   direction="clockwise"
+                                  )
+                fig.update_layout(polar_angularaxis_rotation=90)
+                st.plotly_chart(fig)
+
+                pivot_table = create_pivot_table(table, sheet_name)
+                pivot_table_file_name = f"pivot_table_{sheet_name}_{col_range}.xlsx"
+                pivot_table.to_excel(pivot_table_file_name, index=True)
+                st.success(f"Pivot table saved as {pivot_table_file_name}")
+                
 def main_upload_windrose():
     st.subheader("Upload Windrose")
     file_key = "upload_file_key"
