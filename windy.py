@@ -36,27 +36,25 @@ def calculate_wind_frequency(df):
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
 
-def main_dynamic_windrose():
-    st.title("Dynamic Windrose Generator")
-
-    file_path = st.file_uploader("Upload Excel File", type=["xlsx"])
-    if file_path is not None:
-        df = pd.read_excel(file_path)
-        frequency_table = calculate_wind_frequency(df)
-
-        fig = px.bar_polar(frequency_table, r="percentage", theta="wind_direction",
-                           color="ff",
-                           color_discrete_sequence=px.colors.sequential.Rainbow_r,
-                           start_angle=0,
-                           direction="clockwise"
-                          )
-        fig.update_layout(polar_angularaxis_rotation=90)
-        st.plotly_chart(fig)
-
-def main_upload_windrose():
+def main():
     st.title("Wind Frequency Analysis")
 
+    option = st.sidebar.selectbox("Select Analysis Type", ("Dynamic Windrose", "Upload Windrose"))
+
+    if option == "Dynamic Windrose":
+        main_dynamic_windrose()
+    elif option == "Upload Windrose":
+        main_upload_windrose()
+
+def main_dynamic_windrose():
+    st.subheader("Dynamic Windrose Generator")
+
+    # Your code for dynamic windrose here
+
+def main_upload_windrose():
+    st.subheader("Upload Windrose")
     file_path = st.file_uploader("Upload Excel File", type=["xlsx"])
+
     if file_path is not None:
         sheet_names = pd.ExcelFile(file_path).sheet_names
         sheet_name = st.selectbox("Select Sheet", sheet_names)
@@ -64,28 +62,7 @@ def main_upload_windrose():
         col_range = st.text_input("Column Range (e.g., A:D)", value="A:D")
 
         if st.button("Calculate"):
-            df = pd.read_excel(file_path, sheet_name=sheet_name, usecols=col_range)
-            frequency_table = calculate_wind_frequency(df)
-
-            fig = px.bar_polar(frequency_table, r="percentage", theta="wind_direction",
-                               color="ff",
-                               color_discrete_sequence=px.colors.sequential.Rainbow_r,
-                               start_angle=0,
-                               direction="clockwise"
-                              )
-            fig.update_layout(polar_angularaxis_rotation=90)
-            st.plotly_chart(fig)
-
-            pivot_table = create_pivot_table(frequency_table, sheet_name)
-            pivot_table_file_name = f"pivot_table_{sheet_name}_{col_range}.xlsx"
-            pivot_table.to_excel(pivot_table_file_name, index=True)
-            st.success(f"Pivot table saved as {pivot_table_file_name}")
-
-def create_pivot_table(frequency_table, sheet_name):
-    pivot_table = pd.pivot_table(frequency_table, values='frequency', index='wind_direction', columns='ff', fill_value=0)
-    pivot_table.columns.name = sheet_name
-    return pivot_table
+            # Your code for upload windrose here
 
 if __name__ == "__main__":
-    main_dynamic_windrose()
-    main_upload_windrose()
+    main()
