@@ -6,13 +6,13 @@ import base64
 from xlsxwriter import Workbook
 
 def convert_to_wind_direction(degrees):
-    directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW', 'N']
-    index = np.round((degrees % 360) / 22.5).astype(int)
+    directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N']
+    index = np.round((degrees % 360) / 45).astype(int)
     return np.array(directions)[index]
 
 def sort_wind_directions(directions):
     """Mengurutkan arah mata angin dari utara ke selatan, timur ke barat."""
-    order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+    order = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
     return sorted(directions, key=lambda direction: order.index(direction))
 
 def calculate_wind_frequency(file_path):
@@ -45,7 +45,7 @@ def calculate_wind_frequency(file_path):
             frequency_table = df_cleaned.groupby(['wind_direction', pd.cut(df_cleaned['ff'], bins=speed_bins, labels=speed_labels)]).size().reset_index(name='frequency')
      
             # Menambah bar kosong untuk mata angin yang tidak memiliki nilai
-            order = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+            order = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
             for direction in order:
                 if direction not in frequency_table['wind_direction'].tolist():
                     frequency_table = frequency_table.append({'wind_direction': direction, 'ff': speed_labels[0], 'frequency': 0}, ignore_index=True)
